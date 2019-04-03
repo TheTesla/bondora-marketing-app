@@ -14,6 +14,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
+def getReport(bearer, reportType, startDate, endDate):
+    headers = {'Authorization': 'Bearer {}'.format(bearer), 'Content-Type': 'application/json', 'Accept': 'application/json'}
+    payload = {"ReportType": reportType, "PeriodStart": startDate, "PeriodEnd": endDate}
+    r = requests.post('https://api.bondora.com/api/v1/report/', data=json.dumps(payload), headers=headers)
+    rj = r.json()
+    reportId = rj['Payload']['ReportId']
+    r = requests.get('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
+    rj = r.json()
+    r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
+    return rj
 
 
 
@@ -35,21 +45,21 @@ dateFormat = "%Y-%m-%dT%H:%M:%S.0000000+02:00"
 dateParse = "%Y-%m-%dT%H:%M:%S"
 endDate = datetime.datetime.now().strftime(dateFormat)
 
-payload = {"ReportType": "4", "PeriodStart": startDate, "PeriodEnd": endDate}
-
-r = requests.post('https://api.bondora.com/api/v1/report/', data=json.dumps(payload), headers=headers)
-rj = r.json()
-
-reportId = rj['Payload']['ReportId']
-
-r = requests.get('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
-rj = r.json()
-
+#payload = {"ReportType": "4", "PeriodStart": startDate, "PeriodEnd": endDate}
+#r = requests.post('https://api.bondora.com/api/v1/report/', data=json.dumps(payload), headers=headers)
+#rj = r.json()
+#
+#reportId = rj['Payload']['ReportId']
+#
+#r = requests.get('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
+#rj = r.json()
 
 
-repayments = r.json()
 
-r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
+repayments = getReport(bearer, 4, startDate, endDate)
+accountstatements = getReport(bearer, 7, startDate, endDate)
+
+#r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
 
 try:
     prep = sum([e['PrincipalRepayment'] for i, e in enumerate(repayments['Payload']['Result'])])
@@ -69,13 +79,17 @@ for i, e in enumerate(repayments['Payload']['Result']):
     inrep[0].append(datetime.datetime.strptime(e['Date'], dateParse))
     inrep[1].append(inrep[1][-1] + e['InterestRepayment'])
 
-t = np.arange(0.0, 2.0, 0.01)
-s = 1 + np.sin(2 * np.pi * t)
+acst = ([datetime.datetime.strptime(startDate, dateFormat)] , [0.0])
+for i, e in enumerate(accountstatements['Payload']['Result']):
+    acst[0].append(datetime.datetime.strptime(e['TransferDate'], dateParse))
+    acst[1].append(e['BalanceAfterPayment'])
+
 
 fig, ax = plt.subplots()
 #ax.plot(t, s)
 
 ax.plot_date(inrep[0], inrep[1], 'b-')
+ax.plot_date(acst[0], acst[1], 'r-')
 ax.set(xlabel='date', ylabel='EUR', title='My Bondora earnings')
 ax.grid()
 
