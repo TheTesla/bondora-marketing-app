@@ -71,6 +71,7 @@ except:
 
 
 inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
+#inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['PurchasePrice']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
 rep = [(datetime.datetime.strptime(e['Date'], dateParse), -e['PrincipalRepayment']) for e in repayments['Payload']['Result']]
 inv.extend(rep)
 invs = sorted(inv, key=lambda x: x[0])
@@ -91,10 +92,12 @@ acst = ([datetime.datetime.strptime(startDate, dateFormat)] , [0.0])
 for i, e in enumerate(accountstatements['Payload']['Result']):
     acst[0].append(datetime.datetime.strptime(e['TransferDate'], dateParse))
     acst[1].append(e['BalanceAfterPayment'])
+    #acst[1].append(acst[1][-1] + e['Amount'])
 
 
 
 fig, ax = plt.subplots()
+
 
 
 ax.plot_date(inrep[0], inrep[1], 'b-')
@@ -103,6 +106,7 @@ ax.plot_date(invi[0], invi[1], 'g-')
 ax.set(xlabel='date', ylabel='EUR', title='My Bondora earnings')
 ax.grid()
 
+fig.autofmt_xdate()
 fig.savefig("test.png")
 plt.show()
 
