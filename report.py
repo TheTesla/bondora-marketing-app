@@ -21,7 +21,7 @@ def getReport(bearer, reportType, startDate, endDate):
     r = requests.post('https://api.bondora.com/api/v1/report/', data=json.dumps(payload), headers=headers)
     rj = r.json()
     reportId = rj['Payload']['ReportId']
-    time.sleep(1)
+    time.sleep(3)
     r = requests.get('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
     rj = r.json()
     r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
@@ -57,7 +57,10 @@ time.sleep(3)
 repayments = getReport(bearer, 4, startDate, endDate)
 time.sleep(3)
 accountstatements = getReport(bearer, 7, startDate, endDate)
+time.sleep(3)
+investments = getReport(bearer, 8, startDate, endDate)
 
+invests = investments
 
 try:
     prep = sum([e['PrincipalRepayment'] for i, e in enumerate(repayments['Payload']['Result'])])
@@ -70,10 +73,15 @@ except:
     print(repayments)
 
 
-inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
+#inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
+#inv = [(datetime.datetime.strptime(e['LoanDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']['Result'])]
+inv = [(datetime.datetime.strptime(e['LoanStatusActiveFrom'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']['Result'])]
+#soldinv = [(datetime.datetime.strptime(e['SoldInResale_Date'][:19], dateParseInv), -e['Amount']) for i, e in enumerate(invests['Payload']['Result']) if e['SoldInResale_Price'] is not None]
+soldinv = [(datetime.datetime.strptime(e['SoldInResale_Date'][:19], dateParseInv), -e['SoldInResale_Principal']) for i, e in enumerate(invests['Payload']['Result']) if e['SoldInResale_Price'] is not None]
 #inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['PurchasePrice']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
 rep = [(datetime.datetime.strptime(e['Date'], dateParse), -e['PrincipalRepayment']) for e in repayments['Payload']['Result']]
 inv.extend(rep)
+inv.extend(soldinv)
 invs = sorted(inv, key=lambda x: x[0])
 
 invi = ([datetime.datetime.strptime(startDate, dateFormat)] , [0.0])
@@ -107,6 +115,6 @@ ax.set(xlabel='date', ylabel='EUR', title='My Bondora earnings')
 ax.grid()
 
 fig.autofmt_xdate()
-fig.savefig("test.png")
+fig.savefig("test.svg")
 plt.show()
 
