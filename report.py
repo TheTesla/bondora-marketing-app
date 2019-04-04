@@ -74,8 +74,9 @@ except:
 
 
 #inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
-#inv = [(datetime.datetime.strptime(e['LoanDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']['Result'])]
-inv = [(datetime.datetime.strptime(e['LoanStatusActiveFrom'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']['Result'])]
+inv = [(datetime.datetime.strptime(e['LoanDate'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']['Result'])]
+#inv = [(datetime.datetime.strptime(e['LoanStatusActiveFrom'][:19], dateParseInv), e['Amount']) for i, e in enumerate(invests['Payload']['Result'])]
+#inv = [(datetime.datetime.strptime(e['LoanStatusActiveFrom'][:19], dateParseInv), e['BidPrincipal']) for i, e in enumerate(invests['Payload']['Result'])]
 #soldinv = [(datetime.datetime.strptime(e['SoldInResale_Date'][:19], dateParseInv), -e['Amount']) for i, e in enumerate(invests['Payload']['Result']) if e['SoldInResale_Price'] is not None]
 soldinv = [(datetime.datetime.strptime(e['SoldInResale_Date'][:19], dateParseInv), -e['SoldInResale_Principal']) for i, e in enumerate(invests['Payload']['Result']) if e['SoldInResale_Price'] is not None]
 #inv = [(datetime.datetime.strptime(e['PurchaseDate'][:19], dateParseInv), e['PurchasePrice']) for i, e in enumerate(invests['Payload']) if e['LoanStatusCode'] != 3]
