@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 
 
-# curl https://api.bondora.com/api/v1/account/investments -H "Content-type: application/json" -H "Accept: application/json" -H "Authorization: Bearer H0kFRXrr8xHQQZzm99CxEGU0S2JwyIzTue6U3GUHIRAmP8g7" | jq .
-
-
-
 
 import requests
 import re
@@ -36,7 +32,6 @@ with open('bearer.conf', 'r') as f:
 
 bearer = re.sub('[^a-zA-Z0-9]' , '', bearer)
 
-# curl https://api.bondora.com/api/v1/report -X POST -H "Content-type: application/json" -H "Accept: application/json" -H "Authorization: Bearer H0kFRXrr8xHQQZzm99CxEGU0S2JwyIzTue6U3GUHIRAmP8g7" --data '{"ReportType": "4", "PeriodStart": "2019-01-01T16:25:24.2921787+02:00", "PeriodEnd": "2019-03-25T16:25:24.2921787+02:00" }' | jq .
 
 headers = { 'Authorization': 'Bearer {}'.format(bearer),
             'Content-Type':  'application/json',
