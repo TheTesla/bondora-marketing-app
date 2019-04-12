@@ -1,3 +1,5 @@
 bearer.conf
 *.pyc
+*.svg
+*.png
 

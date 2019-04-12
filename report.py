@@ -17,7 +17,7 @@ def getReport(bearer, reportType, startDate, endDate):
     r = requests.post('https://api.bondora.com/api/v1/report/', data=json.dumps(payload), headers=headers)
     rj = r.json()
     reportId = rj['Payload']['ReportId']
-    time.sleep(3)
+    time.sleep(10)
     r = requests.get('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
     rj = r.json()
     r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
@@ -92,25 +92,36 @@ for i, e in enumerate(repayments['Payload']['Result']):
     inrep[0].append(datetime.datetime.strptime(e['Date'], dateParse))
     inrep[1].append(inrep[1][-1] + e['InterestRepayment'])
 
+deposits = ([], [])
+bonus = ([], [])
 acst = ([datetime.datetime.strptime(startDate, dateFormat)] , [0.0])
 for i, e in enumerate(accountstatements['Payload']['Result']):
     acst[0].append(datetime.datetime.strptime(e['TransferDate'], dateParse))
     acst[1].append(e['BalanceAfterPayment'])
-    #acst[1].append(acst[1][-1] + e['Amount'])
+    if 'TransferDeposit' in e['Description']:
+        deposits[0].append(datetime.datetime.strptime(e['TransferDate'], dateParse))
+        deposits[1].append(e['Amount'])
+    elif 'TransferBonus' in e['Description']:
+        bonus[0].append(datetime.datetime.strptime(e['TransferDate'], dateParse))
+        bonus[1].append(e['Amount'])
 
+    #acst[1].append(acst[1][-1] + e['Amount'])
 
 
 fig, ax = plt.subplots()
 
 
 
-ax.plot_date(inrep[0], inrep[1], 'b-')
-ax.plot_date(acst[0], acst[1], 'r-')
-ax.plot_date(invi[0], invi[1], 'g-')
+ax.plot_date(inrep[0], inrep[1], 'b-', label='Interest')
+ax.plot_date(acst[0], acst[1], 'r-', label='Balance')
+ax.plot_date(invi[0], invi[1], 'g-', label='Investments')
+ax.plot_date(deposits[0], deposits[1], 'yo', label='Deposits')
+ax.plot_date(bonus[0], bonus[1], 'go', label='Commission')
 ax.set(xlabel='date', ylabel='EUR', title='My Bondora earnings')
+ax.legend(loc=0)
 ax.grid()
 
 fig.autofmt_xdate()
-fig.savefig("test.svg")
+fig.savefig("report.svg")
 plt.show()
 
