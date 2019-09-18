@@ -6,10 +6,14 @@ import requests
 import re
 import datetime
 import json
-import matplotlib
+import matplotlib as mpl
+mpl.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import os
+
+
 
 def getReport(bearer, reportType, startDate, endDate):
     headers = {'Authorization': 'Bearer {}'.format(bearer), 'Content-Type': 'application/json', 'Accept': 'application/json'}
@@ -23,10 +27,10 @@ def getReport(bearer, reportType, startDate, endDate):
     r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
     return rj
 
-
+here = os.path.dirname(os.path.realpath(__file__))
 
 bearer = ''
-with open('bearer.conf', 'r') as f:
+with open(os.path.join(here, 'bearer.conf'), 'r') as f:
     bearer = f.read()
     f.close()
 
@@ -122,6 +126,6 @@ ax.legend(loc=0)
 ax.grid()
 
 fig.autofmt_xdate()
-fig.savefig("report.svg")
-plt.show()
+fig.savefig(os.path.join(here,'report.svg'))
+#plt.show()
 
