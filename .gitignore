@@ -2,4 +2,4 @@ bearer.conf
 *.pyc
 *.svg
 *.png
-
+*.ipynb

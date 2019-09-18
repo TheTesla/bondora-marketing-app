@@ -17,7 +17,7 @@ def getReport(bearer, reportType, startDate, endDate):
     r = requests.post('https://api.bondora.com/api/v1/report/', data=json.dumps(payload), headers=headers)
     rj = r.json()
     reportId = rj['Payload']['ReportId']
-    time.sleep(10)
+    time.sleep(100)
     r = requests.get('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
     rj = r.json()
     r = requests.delete('https://api.bondora.com/api/v1/report/{}'.format(reportId), headers=headers)
